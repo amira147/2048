@@ -108,8 +108,10 @@ $(document).ready(function(){
 					var tile_row = $(this).data('row');
 					var tile_col = $(this).data('col');
 
+
+					console.log("is_top_tile_numbered=> ", myGame.is_top_tile_numbered('row', 1, 'col', tile_col), "for col=> ", tile_col);
 					while(!myGame.is_top_tile_numbered('row', 1, 'col', tile_col)){
-						console.log("is_top_tile_numbered=> ", myGame.is_top_tile_numbered('row', 1));
+						console.log("in while loop. tile_row=> ", tile_row);
 						if(tile_row>1){
 							var tile_above_row = tile_row - 1;
 							var $tile_above = $('.tile[data-row='+tile_above_row+'][data-col='+tile_col+']');
@@ -121,7 +123,7 @@ $(document).ready(function(){
 
 							myGame.toggle_numbered_class();
 						}
-						break;
+						// break;
 					}
 				});
 				// break;
@@ -140,6 +142,7 @@ $(document).ready(function(){
 
 	Game.prototype.is_top_tile_numbered = function(line1, number, line2, tile_number){ 
 		var top_tile_numbered = false;
+		console.log("line1=> ", line1, "number=> ", number, "line2=> ", line2, "tile_number=> ", tile_number);
 		// $('.tile[data-'+line+'='+number+']').each(function(){
 		// 	if(!$(this).hasClass('numbered')){
 		// 		top_tile_numbered = false;
