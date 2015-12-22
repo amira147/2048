@@ -97,56 +97,69 @@ $(document).ready(function(){
 	Game.prototype.swipe = function(direction){
 		console.log(this, "direction=> ", direction);
 
-		if(direction=="up"){
-			//while a tile in row 1 does not have class numbered
-			var numbered_tile_count = 0;
+		// if(direction=="up"){
+		// 	//while a tile in row 1 does not have class numbered
+		// 	var numbered_tile_count = 0;
 
-			// console.log("is_top_tile_numbered=> ", myGame.is_top_tile_numbered('row', 1));
-			// while(!myGame.is_whole_line_numbered('row', 1)){
-				$('.tile.numbered').each(function(){
-					console.log("numbered tile => ", $(this));
-					var tile_row = $(this).data('row');
-					var tile_col = $(this).data('col');
-					var tile_above_row = 0;
-					var $tile_above;
+		// 	// console.log("is_top_tile_numbered=> ", myGame.is_top_tile_numbered('row', 1));
+		// 	// while(!myGame.is_whole_line_numbered('row', 1)){
+		// 	function foo(){
 
-					// var count = 0;
-					console.log("is_top_tile_numbered=> ", myGame.is_top_tile_numbered('row', 1, 'col', tile_col), "for col=> ", tile_col);
-					// while(!myGame.is_top_tile_numbered('row', 1, 'col', tile_col)){
-						console.log("in while loop. tile_row=> ", tile_row);
-						if(tile_row>1){
+		// 		$('.tile.numbered').each(function(){
+
+		// 			console.log("numbered tile => ", $(this).data('row'),",",$(this).data('col'));
+		// 			var tile_row = $(this).data('row');
+		// 			var tile_col = $(this).data('col');
+		// 			var tile_above_row = 0;
+		// 			var $tile_above;
+
+		// 			// var count = 0;
+		// 			console.log("is_top_tile_numbered=> ", myGame.is_top_tile_numbered('row', 1, 'col', tile_col), "for col=> ", tile_col);
+		// 			// while(!myGame.is_top_tile_numbered('row', 1, 'col', tile_col)){
+		// 				console.log("in while loop. tile_row=> ", tile_row);
+		// 				if(tile_row>1){
 							
-							tile_above_row = tile_row - 1;
-							$tile_above = $('.tile[data-row='+tile_above_row+'][data-col='+tile_col+']');
-							console.log("tile_above_row=> ",tile_above_row, "is numbered? ", $tile_above.hasClass('numbered'));
+		// 					tile_above_row = tile_row - 1;
+		// 					$tile_above = $('.tile[data-row='+tile_above_row+'][data-col='+tile_col+']');
+		// 					console.log("tile_above_row=> ",tile_above_row, "is numbered? ", $tile_above.hasClass('numbered'));
 							
-							if(!$tile_above.hasClass('numbered')){
-								console.log("move tile => ", $tile_above);
-								$tile_above.html($(this).html());
-								$(this).html("");
-							}
+		// 					if(!$tile_above.hasClass('numbered')){
+		// 						console.log("%c move tile up!", 'color:green;');
+		// 						$tile_above.html($(this).html());
+		// 						$(this).css('background-color','red');
+		// 						$(this).html("");
+		// 					}
 
-							myGame.toggle_numbered_class();
-						}
-						// count++;
-						// if(count==3){
+		// 					myGame.toggle_numbered_class();
+		// 					foo();
+		// 				}
+		// 				else{
+		// 					console.log('%c SWIPE END', 'color:red;')
+		// 					return true;
+		// 				}
+		// 				// count++;
+		// 				// if(count==6){
 
-						// break;
-						// }
-					// }
-				});
-				// break;
-			// }
+		// 				// return false;
+		// 				// }
+		// 			// }
+		// 		});
+	
+		// 	}
+		// 	foo();
 
-		}if(direction=="down"){
-			//query each row except 4
-		}if(direction=="left"){
-			//query each col except 1
-		}if(direction=="right"){
-			//query each col except 4
-		}
+		// 		// break;
+		// 	// }
 
-		// myGame.add_new_tile();
+		// }if(direction=="down"){
+		// 	//query each row except 4
+		// }if(direction=="left"){
+		// 	//query each col except 1
+		// }if(direction=="right"){
+		// 	//query each col except 4
+		// }
+
+		myGame.add_new_tile();
 	};
 
 	Game.prototype.is_top_tile_numbered = function(line1, number, line2, tile_number){ 
