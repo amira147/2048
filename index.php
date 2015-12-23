@@ -93,11 +93,13 @@ $(document).ready(function(){
 	
 	Game.prototype.swipe = function(direction){
 		console.log(this, "direction=> ", direction);
+		var add_new_tile = false;
 
 		if(direction=="up"){
 
 			//move
 			$('.tile').each(function(){
+				console.log("%c <== New tile for MOVE check ==>", 'background-color: red;');
 				var x = $(this).data('x');
 				var y = $(this).data('y');
 				var tile_id = $(this).attr('id');
@@ -110,6 +112,8 @@ $(document).ready(function(){
 					// var count = 0;
 					while(myGame.should_i_move(tile_id)){
 						console.log("MOVE UP");
+						add_new_tile = true;
+
 						$tile = $('#'+tile_id);
 						x = $tile.data('x');
 						y = $tile.data('y');
@@ -136,6 +140,7 @@ $(document).ready(function(){
 
 			//merge
 			$('.tile').reverse().each(function(){
+				console.log("%c <== New tile for MERGE check ==>", 'background-color:green;');
 				var x = $(this).attr('data-x');
 				var y = $(this).attr('data-y');
 				var tile_id = $(this).attr('id');
@@ -143,22 +148,27 @@ $(document).ready(function(){
 
 				if(y>1){
 
-					console.log("CHECK==> should_i_merge ", myGame.should_i_merge(tile_id));
+					console.log("CHECK==> should_i_merge ", myGame.should_i_merge(tile_id), "with x=> ", x, "with y=> ", y);
 
 					var count = 0;
+
 					while(myGame.should_i_merge(tile_id)){
 						console.log("MERGE tile_id=> ", tile_id);
+						add_new_tile = true;
+
 						$tile = $('#'+tile_id);
 						x = $tile.attr('data-x');
 						y = $tile.attr('data-y');
 						sqr_above = y-1;
+
+						console.log("this is the tile=> ", $('#'+tile_id), "with x=> ", x, "with y=> ", y);
 
 						$current_sqr = $('.square[data-row='+ y +'][data-col='+x+']');
 						$above_sqr = $('.square[data-row='+ sqr_above +'][data-col='+x+']');
 
 						new_val = Math.pow($tile.html(), 2);
 
-						// console.log("MERGE. new_val=> ",new_val, "for sqr=> ", $above_sqr);
+						console.log("MERGE. new_val=> ",new_val, "for sqr=> ", $above_sqr);
 						$('#'+tile_id).html(new_val);
 						$('#'+tile_id).css('background-color', 'violet');
 						$above_sqr.html($('#'+tile_id));
@@ -171,7 +181,9 @@ $(document).ready(function(){
 						if (count==5){
 							break;
 						}
+
 					}
+
 				}
 			});
 
@@ -183,6 +195,7 @@ $(document).ready(function(){
 			//query each col except 4
 		}
 
+		// add_new_tile ? myGame.add_new_tile() : "" ;
 		myGame.add_new_tile();
 	};
 
@@ -192,8 +205,6 @@ $(document).ready(function(){
 		y = $('#'+tile_id).attr('data-y');
 		row_above = y-1;
 
-
-
 		// console.log(
 		// 	'row_above=> ', row_above, 
 		// 	'x=> ', x, 
@@ -202,10 +213,7 @@ $(document).ready(function(){
 		// 	'tile_val=> ', $('#'+tile_id).html()
 		// );
 
-		if($('.square[data-row='+row_above+'][data-col='+ x +']').hasClass('empty')){
-			should_i_move = true;
-		}
-		else{
+		if(!$('.square[data-row='+row_above+'][data-col='+ x +']').hasClass('empty')){
 			should_i_move = false;
 		}
 
@@ -213,25 +221,23 @@ $(document).ready(function(){
 	}
 
 	Game.prototype.should_i_merge = function(tile_id){ 
-		var should_i_merge = true, x, y, row_above;
+		var should_i_merge = false, x, y, row_above;
 		x = $('#'+tile_id).attr('data-x');
 		y = $('#'+tile_id).attr('data-y');
 		row_above = y-1;
 
+		console.log("INSIDE should_i_merge",
+			'row_above=> ', row_above, 
+			'x=> ', x, 
+			'y=> ', y, 
+			'row_above_val=> ',$('.square[data-row='+row_above+'][data-col='+ x +'] .tile').html(), 
+			'tile_val=> ', $('#'+tile_id).html()
+		);
 
-
-		// console.log(
-		// 	'row_above=> ', row_above, 
-		// 	'x=> ', x, 
-		// 	'y=> ', y, 
-		// 	'row_above_val=> ',$('.square[data-row='+row_above+'][data-col='+ x +'] .tile').html(), 
-		// 	'tile_val=> ', $('#'+tile_id).html()
-		// );
-		if($('.square[data-row='+row_above+'][data-col='+ x +'] .tile').html() == $('#'+tile_id).html()){
-			should_i_merge = true;
-		}
-		else{
-			should_i_merge = false;
+		if($('#'+tile_id)){ //if tile exists
+			if($('.square[data-row='+row_above+'][data-col='+ x +'] .tile').html() == $('#'+tile_id).html()){
+				should_i_merge = true;
+			}
 		}
 
 		return should_i_merge;
