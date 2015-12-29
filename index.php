@@ -91,13 +91,24 @@ $(document).ready(function(){
 		return Math.floor(Math.random() * 16);
 	}
 	
+	Game.prototype.move_tiles = function(direction){
+
+	}
+
+	Game.prototype.merge_tiles = function(direction){
+		
+	}
+
 	Game.prototype.swipe = function(direction){
 		console.log(this, "direction=> ", direction);
-		var add_new_tile = false;
+		var add_new_tile = false, loop_move = true, loop_merge = true;
 
 		if(direction=="up"){
 
 			//move
+			if(loop_move){
+
+			}
 			$('.tile').each(function(){
 				console.log("%c <== New tile for MOVE check ==>", 'background-color: red;');
 				var x = $(this).data('x');
@@ -139,6 +150,7 @@ $(document).ready(function(){
 			});
 
 			//merge
+			var tile_counter = 0;
 			$('.tile').reverse().each(function(){
 				console.log("%c <== New tile for MERGE check ==>", 'background-color:green;');
 				var x = $(this).attr('data-x');
@@ -150,7 +162,7 @@ $(document).ready(function(){
 
 					console.log("CHECK==> should_i_merge ", myGame.should_i_merge(tile_id), "with x=> ", x, "with y=> ", y);
 
-					var count = 0;
+					// var count = 0;
 
 					while(myGame.should_i_merge(tile_id)){
 						console.log("MERGE tile_id=> ", tile_id);
@@ -166,26 +178,36 @@ $(document).ready(function(){
 						$current_sqr = $('.square[data-row='+ y +'][data-col='+x+']');
 						$above_sqr = $('.square[data-row='+ sqr_above +'][data-col='+x+']');
 
-						new_val = Math.pow($tile.html(), 2);
+						new_val = $tile.html()*2;
 
 						console.log("MERGE. new_val=> ",new_val, "for sqr=> ", $above_sqr);
 						$('#'+tile_id).html(new_val);
 						$('#'+tile_id).css('background-color', 'violet');
 						$above_sqr.html($('#'+tile_id));
 						$tile.attr('data-y', sqr_above);
+						$tile.attr('data-merged', '1');
 						$current_sqr.html("");
 						
 						myGame.toggle_tiled_squares();
 
-						count++;
-						if (count==5){
-							break;
-						}
+						// count++;
+						// if (count==5){
+						// 	break;
+						// }
 
 					}
 
 				}
+
+				tile_counter++;
+
+				//reset all merge flags
+				if(tile_counter == $('.tile').length){
+					$('.tile').attr('data-merged', '0');
+				}
 			});
+
+			//if there was a merge, move again, don't merge again.
 
 		}if(direction=="down"){
 			//query each row except 4
@@ -224,17 +246,21 @@ $(document).ready(function(){
 		var should_i_merge = false, x, y, row_above;
 		x = $('#'+tile_id).attr('data-x');
 		y = $('#'+tile_id).attr('data-y');
+		is_merged = $('#'+tile_id).attr('data-merged');
 		row_above = y-1;
 
 		console.log("INSIDE should_i_merge",
+			'tile_id=> ', tile_id, 
+			'tile_id=> ', tile_id, 
+			'is_merged=> ', is_merged, 
 			'row_above=> ', row_above, 
 			'x=> ', x, 
 			'y=> ', y, 
 			'row_above_val=> ',$('.square[data-row='+row_above+'][data-col='+ x +'] .tile').html(), 
 			'tile_val=> ', $('#'+tile_id).html()
 		);
-
-		if($('#'+tile_id)){ //if tile exists
+		
+		if($('#'+tile_id).length && is_merged == '0'){ //if tile exists
 			if($('.square[data-row='+row_above+'][data-col='+ x +'] .tile').html() == $('#'+tile_id).html()){
 				should_i_merge = true;
 			}
@@ -267,7 +293,7 @@ $(document).ready(function(){
 
 		// this.lay_new_tile(rand_square);
 		
-		var $tile = $("<div id='tile_"+Math.floor(Date.now() / 1000)*index+"' class='tile' data-x='0' data-y='0'>"+this.square_values[Math.floor(Math.random() * 2)]+"</div>");
+		var $tile = $("<div id='tile_"+Math.floor(Date.now() / 1000)*index+"' class='tile' data-x='0' data-y='0' data-merged='0'>"+this.square_values[Math.floor(Math.random() * 2)]+"</div>");
 		$($squares[index]).html($tile);
 
 		$tile.attr('data-x', $tile.parent().data('col'));
