@@ -92,120 +92,136 @@ $(document).ready(function(){
 	}
 	
 	Game.prototype.move_tiles = function(direction){
+		
+		var loop_move = false; //flag to check if there was a merge, if true, do another move loop
+			
+		$('.tile').each(function(){
+			console.log("%c <== New tile for MOVE check ==>", 'background-color: red;');
+			var x = $(this).data('x');
+			var y = $(this).data('y');
+			var tile_id = $(this).attr('id');
+			var sqr_above = y-1;
+
+			if(y>1){
+
+				console.log("CHECK==> should_i_move ", myGame.should_i_move(tile_id));
+
+				// var count = 0;
+				while(myGame.should_i_move(tile_id)){
+					console.log("MOVE UP");
+					loop_move = true;
+
+					$tile = $('#'+tile_id);
+					x = $tile.data('x');
+					y = $tile.data('y');
+					sqr_above = y-1;
+
+					$current_sqr = $('.square[data-row='+ y +'][data-col='+x+']');
+					$above_sqr = $('.square[data-row='+ sqr_above +'][data-col='+x+']');
+
+					$above_sqr.html($('#'+tile_id));
+					$tile.attr('data-y', sqr_above);
+					$current_sqr.html("");
+					
+					myGame.toggle_tiled_squares();
+
+					// count++;
+
+					// if(count==5){
+						// break;
+					// }
+
+				}
+			}
+		});
+
+		return loop_move;
 
 	}
 
 	Game.prototype.merge_tiles = function(direction){
 		
+		var tile_counter = 0, //counter to reset data-merged attribute for all tiles
+		loop_merge = false; //flag to check if there was a merge, if true, do another move loop
+
+		$('.tile').reverse().each(function(){
+			console.log("%c <== New tile for MERGE check ==>", 'background-color:green;');
+			var x = $(this).attr('data-x');
+			var y = $(this).attr('data-y');
+			var tile_id = $(this).attr('id');
+			var sqr_above = y-1;
+
+			if(y>1){
+
+				console.log("CHECK==> should_i_merge ", myGame.should_i_merge(tile_id), "with x=> ", x, "with y=> ", y);
+
+				// var count = 0;
+
+				while(myGame.should_i_merge(tile_id)){
+					console.log("MERGE tile_id=> ", tile_id);
+					// add_new_tile = true;
+					loop_merge = true;
+
+					$tile = $('#'+tile_id);
+					x = $tile.attr('data-x');
+					y = $tile.attr('data-y');
+					sqr_above = y-1;
+
+					console.log("this is the tile=> ", $('#'+tile_id), "with x=> ", x, "with y=> ", y);
+
+					$current_sqr = $('.square[data-row='+ y +'][data-col='+x+']');
+					$above_sqr = $('.square[data-row='+ sqr_above +'][data-col='+x+']');
+
+					new_val = $tile.html()*2;
+
+					console.log("MERGE. new_val=> ",new_val, "for sqr=> ", $above_sqr);
+					$('#'+tile_id).html(new_val);
+					$('#'+tile_id).css('background-color', 'violet');
+					$above_sqr.html($('#'+tile_id));
+					$tile.attr('data-y', sqr_above);
+					$tile.attr('data-merged', '1');
+					$current_sqr.html("");
+					
+					myGame.toggle_tiled_squares();
+
+					// count++;
+					// if (count==5){
+					// 	break;
+					// }
+
+				}
+
+			}
+
+			tile_counter++;
+
+			//reset all merge flags
+			if(tile_counter == $('.tile').length){
+				$('.tile').attr('data-merged', '0');
+			}
+		});
+
+		return loop_merge;
 	}
 
 	Game.prototype.swipe = function(direction){
 		console.log(this, "direction=> ", direction);
-		var add_new_tile = false, loop_move = true, loop_merge = true;
+		var add_new_tile = false, loop_move = true, loop_merge = false;
 
 		if(direction=="up"){
 
 			//move
-			if(loop_move){
-
-			}
-			$('.tile').each(function(){
-				console.log("%c <== New tile for MOVE check ==>", 'background-color: red;');
-				var x = $(this).data('x');
-				var y = $(this).data('y');
-				var tile_id = $(this).attr('id');
-				var sqr_above = y-1;
-
-				if(y>1){
-
-					console.log("CHECK==> should_i_move ", myGame.should_i_move(tile_id));
-
-					// var count = 0;
-					while(myGame.should_i_move(tile_id)){
-						console.log("MOVE UP");
-						add_new_tile = true;
-
-						$tile = $('#'+tile_id);
-						x = $tile.data('x');
-						y = $tile.data('y');
-						sqr_above = y-1;
-
-						$current_sqr = $('.square[data-row='+ y +'][data-col='+x+']');
-						$above_sqr = $('.square[data-row='+ sqr_above +'][data-col='+x+']');
-
-						$above_sqr.html($('#'+tile_id));
-						$tile.attr('data-y', sqr_above);
-						$current_sqr.html("");
-						
-						myGame.toggle_tiled_squares();
-
-						// count++;
-
-						// if(count==5){
-							// break;
-						// }
-
-					}
-				}
-			});
+			add_new_tile = myGame.move_tiles();
 
 			//merge
-			var tile_counter = 0;
-			$('.tile').reverse().each(function(){
-				console.log("%c <== New tile for MERGE check ==>", 'background-color:green;');
-				var x = $(this).attr('data-x');
-				var y = $(this).attr('data-y');
-				var tile_id = $(this).attr('id');
-				var sqr_above = y-1;
-
-				if(y>1){
-
-					console.log("CHECK==> should_i_merge ", myGame.should_i_merge(tile_id), "with x=> ", x, "with y=> ", y);
-
-					// var count = 0;
-
-					while(myGame.should_i_merge(tile_id)){
-						console.log("MERGE tile_id=> ", tile_id);
-						add_new_tile = true;
-
-						$tile = $('#'+tile_id);
-						x = $tile.attr('data-x');
-						y = $tile.attr('data-y');
-						sqr_above = y-1;
-
-						console.log("this is the tile=> ", $('#'+tile_id), "with x=> ", x, "with y=> ", y);
-
-						$current_sqr = $('.square[data-row='+ y +'][data-col='+x+']');
-						$above_sqr = $('.square[data-row='+ sqr_above +'][data-col='+x+']');
-
-						new_val = $tile.html()*2;
-
-						console.log("MERGE. new_val=> ",new_val, "for sqr=> ", $above_sqr);
-						$('#'+tile_id).html(new_val);
-						$('#'+tile_id).css('background-color', 'violet');
-						$above_sqr.html($('#'+tile_id));
-						$tile.attr('data-y', sqr_above);
-						$tile.attr('data-merged', '1');
-						$current_sqr.html("");
-						
-						myGame.toggle_tiled_squares();
-
-						// count++;
-						// if (count==5){
-						// 	break;
-						// }
-
-					}
-
-				}
-
-				tile_counter++;
-
-				//reset all merge flags
-				if(tile_counter == $('.tile').length){
-					$('.tile').attr('data-merged', '0');
-				}
-			});
+			loop_merge = myGame.merge_tiles();
+			
+			//if there was a merge, move tiles again
+			if(loop_merge){
+				add_new_tile = true;
+				console.log('%c MOVE TILES AGAIN', 'color: red;');
+				myGame.move_tiles();
+			}
 
 			//if there was a merge, move again, don't merge again.
 
@@ -217,8 +233,8 @@ $(document).ready(function(){
 			//query each col except 4
 		}
 
-		// add_new_tile ? myGame.add_new_tile() : "" ;
-		myGame.add_new_tile();
+		add_new_tile ? myGame.add_new_tile() : "" ;
+		// myGame.add_new_tile();
 	};
 
 	Game.prototype.should_i_move = function(tile_id){ 
