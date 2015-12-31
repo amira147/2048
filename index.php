@@ -31,7 +31,7 @@
 	 .tile[data-value="8"]{background-color: orange;}
 	 .tile[data-value="16"]{background-color: mistyrose;}
 	 .tile[data-value="32"]{background-color: green;}
-	 .tile[data-value="64"]{background-color: azure;}
+	 .tile[data-value="64"]{background-color: plum;}
 	 .tile[data-value="128"]{background-color: violet;}
 	 .tile[data-value="256"]{background-color: aquamarine;}
 	 .tile[data-value="512"]{background-color: firebrick;}
@@ -255,16 +255,17 @@ $(document).ready(function(){
 	}
 
 	Game.prototype.merge_tiles = function(direction){
-		
+
 		var tile_counter = 0, //counter to reset data-merged attribute for all tiles
 		loop_merge = false, //flag to check if there was a merge, if true, do another move loop
 		tile_count = $('.tile').length; //count total tiles before entering loop to equate with loop counter
 
 		if(direction == 'up' || direction == 'left'){
-			$tiles = $('.tile').reverse();
+			// $tiles = $('.tile').reverse();
+			$tiles = $('.tile');
 		}
 		else if(direction == 'down' || direction == 'right'){
-			$tiles = $('.tile');
+			$tiles = $('.tile').reverse();
 			
 		}
 
@@ -430,8 +431,7 @@ $(document).ready(function(){
 		console.log(this, "direction=> ", direction);
 		var add_new_tile = false, loop_move = true, loop_merge = false;
 
-		// if(direction=="up" || direction=="down"){
-
+		if(direction){
 			//move
 			add_new_tile = myGame.move_tiles(direction);
 
@@ -444,25 +444,80 @@ $(document).ready(function(){
 				console.log('%c MOVE TILES AGAIN', 'color: red;');
 				myGame.move_tiles(direction);
 			}
+		}
+		else{
+			// check if there are mergable tiles
+			if(!myGame.are_there_mergable_tiles()){
+				alert("Game Over!");
+			}
 
-			//if there was a merge, move again, don't merge again.
+			return false;
+		}
 
-		// }
-		// if(direction=="down"){
-		// 	//query each row except 4
-		// }
-		// if(direction=="left"){
-		// 	//query each col except 1
-		// }
-		// if(direction=="right"){
-		// 	//query each col except 4
-		// }
+		if(!$('.square.empty').length){
+			//check if anything is movable or mergable without moving or merging OH BOY
+			myGame.swipe();
+		}
 
 		add_new_tile ? myGame.add_new_tile() : "" ;
-		// myGame.add_new_tile();
 	}
 
+	Game.prototype.are_there_mergable_tiles = function(){
+		console.log('%c inside are_there_mergable_tiles', 'background-color: violet;');
+		var are_there_mergable_tiles = false;
+		var $tiles = $('.tile');
+		var current_direction = "up";
 
+		function check_tiles(direction){
+			console.log("CHECK TILES=> ", direction);
+			$tiles.each(function(){
+				console.log(456, current_direction);
+				var mergable = false;
+				var x = parseInt($(this).attr('data-x'));
+				var y = parseInt($(this).attr('data-y'));
+				var tile_id = $(this).attr('id');
+
+				if(direction == 'up'){
+					if(y>1){
+						mergable = true;
+						// y = y-1;
+					}
+				}
+				else if(direction == 'left'){
+					if(x>1){
+						mergable = true;
+						// x = x-1;
+					}
+					
+				}
+
+				if(mergable){
+
+					console.log("CHECK==> should_i_merge ", myGame.should_i_merge(tile_id, direction, true));
+
+					if(myGame.should_i_merge(tile_id, direction, true)){
+						are_there_mergable_tiles = true;
+						return false;
+					}
+				}
+			});
+
+			if(direction == "up" && !are_there_mergable_tiles){
+				console.log(234, current_direction);
+				current_direction = "left";
+				check_tiles(current_direction);
+			}
+
+		}
+
+		if(current_direction == "up" && !are_there_mergable_tiles){
+				console.log(123, current_direction);
+			check_tiles(current_direction);
+		}
+		
+		// console.log("are_there_mergable_tiles?", are_there_mergable_tiles);
+		return are_there_mergable_tiles;
+	}
 	
 	Game.prototype.toggle_tiled_squares = function(){
 		$squares.each(function(){
@@ -477,7 +532,7 @@ $(document).ready(function(){
 	
 	Game.prototype.add_new_tile = function(){
 		var temp = this.get_random_square();
-		
+			
 		while(!$($squares[temp]).hasClass('empty')){
 			temp = this.get_random_square();
 		}
@@ -502,6 +557,16 @@ $(document).ready(function(){
 
 	$('.swipe').click(function(){
 		myGame.swipe($(this).attr('data-direction'));
+	});
+
+	$(document).keydown(function(e) {
+		var direction;
+	    if(e.keyCode == 37){direction = "left";}
+	    if(e.keyCode == 38){direction = "up";}
+	    if(e.keyCode == 39){direction = "right"};
+	    if(e.keyCode == 40){direction = "down";}
+		
+		myGame.swipe(direction);
 	});
 
 });
