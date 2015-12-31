@@ -84,43 +84,93 @@ $(document).ready(function(){
 
 	};
 
-	Game.prototype.square_matrix = [[1,2,3,4],[1,2,3,4],[1,2,3,4],[1,2,3,4]];
 	Game.prototype.square_values = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
 	
 	Game.prototype.get_random_square = function(){
-		return Math.floor(Math.random() * 16);
+		return Math.ceil(Math.random() * 16);
 	}
 	
 	Game.prototype.move_tiles = function(direction){
 		
 		var loop_move = false; //flag to check if there was a merge, if true, do another move loop
+		
+		if(direction == 'up'){
+			$tiles = $('.tile');
+		}
+		else if(direction == 'down'){
+			$tiles = $('.tile').reverse();
 			
-		$('.tile').each(function(){
-			console.log("%c <== New tile for MOVE check ==>", 'background-color: red;');
-			var x = $(this).data('x');
-			var y = $(this).data('y');
+		}
+		else if(direction == 'left'){
+			
+		}
+		else if(direction == 'right'){
+
+		}
+
+		$tiles.each(function(){
+			console.log("%c <== New tile for MOVE check ==>", 'background-color: red;', $(this).attr('id'), "("+$(this).attr('data-x')+","+$(this).attr('data-y')+")");
+			var movable = false;
+			var x = parseInt($(this).attr('data-x'));
+			var y = parseInt($(this).attr('data-y'));
 			var tile_id = $(this).attr('id');
-			var sqr_above = y-1;
+			var target_sqr = 0;
 
-			if(y>1){
+			if(direction == 'up'){
+				if(y>1){
+					movable = true;
+					target_sqr = y-1;
+				}
+			}
+			else if(direction == 'down'){
+				if(y<4){
+					movable = true;
+					target_sqr = y+1;
+				}
+				
+			}
+			else if(direction == 'left'){
+				
+			}
+			else if(direction == 'right'){
 
-				console.log("CHECK==> should_i_move ", myGame.should_i_move(tile_id));
+			}
+
+			if(movable){
+
+				console.log("CHECK==> should_i_move ", myGame.should_i_move(tile_id, direction, true));
 
 				// var count = 0;
-				while(myGame.should_i_move(tile_id)){
-					console.log("MOVE UP");
+				while(myGame.should_i_move(tile_id, direction)){
 					loop_move = true;
 
 					$tile = $('#'+tile_id);
-					x = $tile.data('x');
-					y = $tile.data('y');
-					sqr_above = y-1;
+					x = parseInt($tile.attr('data-x'));
+					y = parseInt($tile.attr('data-y'));
+
+					if(direction == 'up'){
+						target_sqr = y-1;
+					}
+					else if(direction == 'down'){
+						target_sqr = y+1;
+						
+					}
+					else if(direction == 'left'){
+						
+					}
+					else if(direction == 'right'){
+
+					}
+					
+					console.log("MOVE "+direction+": ",
+					"current position=> ", "("+x+","+y+")",
+					"target position=> ", "("+x+","+target_sqr+")");
 
 					$current_sqr = $('.square[data-row='+ y +'][data-col='+x+']');
-					$above_sqr = $('.square[data-row='+ sqr_above +'][data-col='+x+']');
+					$target_sqr = $('.square[data-row='+ target_sqr +'][data-col='+x+']');
 
-					$above_sqr.html($('#'+tile_id));
-					$tile.attr('data-y', sqr_above);
+					$target_sqr.html($('#'+tile_id));
+					$tile.attr('data-y', target_sqr);
 					$current_sqr.html("");
 					
 					myGame.toggle_tiled_squares();
@@ -136,49 +186,133 @@ $(document).ready(function(){
 		});
 
 		return loop_move;
+	}
 
+	Game.prototype.should_i_move = function(tile_id, direction, check_only){ 
+		var should_i_move = true, x, y, target_sqr;
+		x = parseInt($('#'+tile_id).attr('data-x'));
+		y = parseInt($('#'+tile_id).attr('data-y'));
+
+		if(direction == 'up'){
+			target_sqr = y-1;
+		}
+		else if(direction == 'down'){
+			target_sqr = y+1;
+			
+		}
+		else if(direction == 'left'){
+			
+		}
+		else if(direction == 'right'){
+
+		}
+
+		if(!check_only){
+			console.log(
+				'target_sqr=> ', target_sqr, 
+				'x=> ', x, 
+				'y=> ', y, 
+				'target_sqr_val=> ',$('.square[data-row='+target_sqr+'][data-col='+ x +'] .tile').html(), 
+				'tile_val=> ', $('#'+tile_id).html()
+			);
+		}
+
+		if(!$('.square[data-row='+target_sqr+'][data-col='+ x +']').hasClass('empty')){
+			should_i_move = false;
+		}
+
+		return should_i_move;
 	}
 
 	Game.prototype.merge_tiles = function(direction){
 		
 		var tile_counter = 0, //counter to reset data-merged attribute for all tiles
-		loop_merge = false; //flag to check if there was a merge, if true, do another move loop
+		loop_merge = false, //flag to check if there was a merge, if true, do another move loop
+		tile_count = $('.tile').length; //count total tiles before entering loop to equate with loop counter
 
-		$('.tile').reverse().each(function(){
-			console.log("%c <== New tile for MERGE check ==>", 'background-color:green;');
-			var x = $(this).attr('data-x');
-			var y = $(this).attr('data-y');
+		if(direction == 'up'){
+			$tiles = $('.tile').reverse();
+		}
+		else if(direction == 'down'){
+			$tiles = $('.tile');
+			
+		}
+		else if(direction == 'left'){
+			
+		}
+		else if(direction == 'right'){
+
+		}
+
+		$tiles.each(function(){
+			console.log("%c <== New tile for MERGE check ==>", 'background-color:green;', $(this).attr('id'));
+			var mergable = false;
+			var x = parseInt($(this).attr('data-x'));
+			var y = parseInt($(this).attr('data-y'));
 			var tile_id = $(this).attr('id');
-			var sqr_above = y-1;
+			var target_sqr = 0;
 
-			if(y>1){
+			if(direction == 'up'){
+				if(y>1){
+					mergable = true;
+					target_sqr = y-1;
+				}
+			}
+			else if(direction == 'down'){
+				if(y<4){
+					mergable = true;
+					target_sqr = y+1;
+				}
+				
+			}
+			else if(direction == 'left'){
+				
+			}
+			else if(direction == 'right'){
 
-				console.log("CHECK==> should_i_merge ", myGame.should_i_merge(tile_id), "with x=> ", x, "with y=> ", y);
+			}
+
+			if(mergable){
+
+				console.log("CHECK==> should_i_merge ", myGame.should_i_merge(tile_id, direction, true), "with x=> ", x, "with y=> ", y);
 
 				// var count = 0;
 
-				while(myGame.should_i_merge(tile_id)){
+				while(myGame.should_i_merge(tile_id, direction)){
 					console.log("MERGE tile_id=> ", tile_id);
 					// add_new_tile = true;
 					loop_merge = true;
 
 					$tile = $('#'+tile_id);
-					x = $tile.attr('data-x');
-					y = $tile.attr('data-y');
-					sqr_above = y-1;
+					x = parseInt($tile.attr('data-x'));
+					y = parseInt($tile.attr('data-y'));
+
+					if(direction == 'up'){
+						target_sqr = y-1;
+					}
+					else if(direction == 'down'){
+						target_sqr = y+1;
+						
+					}
+					else if(direction == 'left'){
+						
+					}
+					else if(direction == 'right'){
+
+					}
 
 					console.log("this is the tile=> ", $('#'+tile_id), "with x=> ", x, "with y=> ", y);
 
 					$current_sqr = $('.square[data-row='+ y +'][data-col='+x+']');
-					$above_sqr = $('.square[data-row='+ sqr_above +'][data-col='+x+']');
+					$target_sqr = $('.square[data-row='+ target_sqr +'][data-col='+x+']');
 
 					new_val = $tile.html()*2;
 
-					console.log("MERGE. new_val=> ",new_val, "for sqr=> ", $above_sqr);
+					console.log("MERGE. new_val=> ",new_val, "for sqr=> ", $target_sqr);
 					$('#'+tile_id).html(new_val);
 					$('#'+tile_id).css('background-color', 'violet');
-					$above_sqr.html($('#'+tile_id));
-					$tile.attr('data-y', sqr_above);
+					$target_sqr.html($('#'+tile_id));
+					$tile.attr('data-y', target_sqr);
 					$tile.attr('data-merged', '1');
 					$current_sqr.html("");
 					
@@ -196,7 +330,8 @@ $(document).ready(function(){
 			tile_counter++;
 
 			//reset all merge flags
-			if(tile_counter == $('.tile').length){
+			// console.log("tile_count=> ", $('.tile').length, "tile_counter=> ",tile_counter);
+			if(tile_counter == tile_count){
 				$('.tile').attr('data-merged', '0');
 			}
 		});
@@ -204,85 +339,82 @@ $(document).ready(function(){
 		return loop_merge;
 	}
 
-	Game.prototype.swipe = function(direction){
-		console.log(this, "direction=> ", direction);
-		var add_new_tile = false, loop_move = true, loop_merge = false;
-
-		if(direction=="up"){
-
-			//move
-			add_new_tile = myGame.move_tiles();
-
-			//merge
-			loop_merge = myGame.merge_tiles();
-			
-			//if there was a merge, move tiles again
-			if(loop_merge){
-				add_new_tile = true;
-				console.log('%c MOVE TILES AGAIN', 'color: red;');
-				myGame.move_tiles();
-			}
-
-			//if there was a merge, move again, don't merge again.
-
-		}if(direction=="down"){
-			//query each row except 4
-		}if(direction=="left"){
-			//query each col except 1
-		}if(direction=="right"){
-			//query each col except 4
-		}
-
-		add_new_tile ? myGame.add_new_tile() : "" ;
-		// myGame.add_new_tile();
-	};
-
-	Game.prototype.should_i_move = function(tile_id){ 
-		var should_i_move = true, x, y, row_above;
-		x = $('#'+tile_id).attr('data-x');
-		y = $('#'+tile_id).attr('data-y');
-		row_above = y-1;
-
-		// console.log(
-		// 	'row_above=> ', row_above, 
-		// 	'x=> ', x, 
-		// 	'y=> ', y, 
-		// 	'row_above_val=> ',$('.square[data-row='+row_above+'][data-col='+ x +'] .tile').html(), 
-		// 	'tile_val=> ', $('#'+tile_id).html()
-		// );
-
-		if(!$('.square[data-row='+row_above+'][data-col='+ x +']').hasClass('empty')){
-			should_i_move = false;
-		}
-
-		return should_i_move;
-	}
-
-	Game.prototype.should_i_merge = function(tile_id){ 
-		var should_i_merge = false, x, y, row_above;
-		x = $('#'+tile_id).attr('data-x');
-		y = $('#'+tile_id).attr('data-y');
+	Game.prototype.should_i_merge = function(tile_id, direction, check_only){ 
+		var should_i_merge = false, x, y, target_sqr;
+		x = parseInt($('#'+tile_id).attr('data-x'));
+		y = parseInt($('#'+tile_id).attr('data-y'));
 		is_merged = $('#'+tile_id).attr('data-merged');
-		row_above = y-1;
 
-		console.log("INSIDE should_i_merge",
-			'tile_id=> ', tile_id, 
-			'tile_id=> ', tile_id, 
-			'is_merged=> ', is_merged, 
-			'row_above=> ', row_above, 
-			'x=> ', x, 
-			'y=> ', y, 
-			'row_above_val=> ',$('.square[data-row='+row_above+'][data-col='+ x +'] .tile').html(), 
-			'tile_val=> ', $('#'+tile_id).html()
-		);
+		if(direction == 'up'){
+			target_sqr = y-1;
+		}
+		else if(direction == 'down'){
+			target_sqr = y+1;
+			
+		}
+		else if(direction == 'left'){
+			
+		}
+		else if(direction == 'right'){
+
+		}
+
+		if(!check_only){
+			console.log("INSIDE should_i_merge",
+				'tile_id=> ', tile_id, 
+				'tile_id=> ', tile_id, 
+				'is_merged=> ', is_merged, 
+				'target_sqr=> ', target_sqr, 
+				'x=> ', x, 
+				'y=> ', y, 
+				'target_sqr_val=> ',$('.square[data-row='+target_sqr+'][data-col='+ x +'] .tile').html(), 
+				'tile_val=> ', $('#'+tile_id).html()
+			);
+		}
 		
 		if($('#'+tile_id).length && is_merged == '0'){ //if tile exists
-			if($('.square[data-row='+row_above+'][data-col='+ x +'] .tile').html() == $('#'+tile_id).html()){
+			if($('.square[data-row='+target_sqr+'][data-col='+ x +'] .tile').html() == $('#'+tile_id).html()){
 				should_i_merge = true;
 			}
 		}
 
 		return should_i_merge;
+	}
+
+	Game.prototype.swipe = function(direction){
+		console.log(this, "direction=> ", direction);
+		var add_new_tile = false, loop_move = true, loop_merge = false;
+
+		if(direction=="up" || direction=="down"){
+
+			//move
+			add_new_tile = myGame.move_tiles(direction);
+
+			//merge
+			loop_merge = myGame.merge_tiles(direction);
+			
+			//if there was a merge, move tiles again
+			if(loop_merge){
+				add_new_tile = true;
+				console.log('%c MOVE TILES AGAIN', 'color: red;');
+				myGame.move_tiles(direction);
+			}
+
+			//if there was a merge, move again, don't merge again.
+
+		}
+		// if(direction=="down"){
+		// 	//query each row except 4
+		// }
+		if(direction=="left"){
+			//query each col except 1
+		}
+		if(direction=="right"){
+			//query each col except 4
+		}
+
+		add_new_tile ? myGame.add_new_tile() : "" ;
+		// myGame.add_new_tile();
 	}
 
 
@@ -312,8 +444,8 @@ $(document).ready(function(){
 		var $tile = $("<div id='tile_"+Math.floor(Date.now() / 1000)*index+"' class='tile' data-x='0' data-y='0' data-merged='0'>"+this.square_values[Math.floor(Math.random() * 2)]+"</div>");
 		$($squares[index]).html($tile);
 
-		$tile.attr('data-x', $tile.parent().data('col'));
-		$tile.attr('data-y', $tile.parent().data('row'));
+		$tile.attr('data-x', $tile.parent().attr('data-col'));
+		$tile.attr('data-y', $tile.parent().attr('data-row'));
 		// $squares[rand_square].innerHTML = this.square_values[Math.floor(Math.random() * 2)];
 
 		this.toggle_tiled_squares();
@@ -324,7 +456,7 @@ $(document).ready(function(){
 	});
 
 	$('.swipe').click(function(){
-		myGame.swipe($(this).data('direction'));
+		myGame.swipe($(this).attr('data-direction'));
 	});
 
 });
